@@ -3,10 +3,11 @@ from termcolor import colored
 from subprocess import call
 import os
 import subprocess
+import MySQLdb
 
 global alive_hosts
 global open_ports
-host_file = open("alive_hosts.txt","r")
+host_file = open("../generated/alive_hosts.txt","r")
 
 
 def read_file():
@@ -40,6 +41,8 @@ def test_tcp_syn(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
 
 def test_tcp_connect(host):
@@ -48,8 +51,9 @@ def test_tcp_connect(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
-	print open_ports
 
 def test_null(host):
 	p = subprocess.Popen(["nmap","-n","-Pn","-sN","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -57,6 +61,8 @@ def test_null(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
 
 def test_fin(host):
@@ -65,6 +71,8 @@ def test_fin(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
 
 def test_xmas(host):
@@ -73,6 +81,8 @@ def test_xmas(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
 
 def test_udp(host):
@@ -81,6 +91,8 @@ def test_udp(host):
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
+			fields = line.split()
+			compose_and_insert(fields)
 			print colored(line,'green')
 
 def test_os(host):
@@ -91,7 +103,40 @@ def test_os(host):
 		if 'OS' in line:
 			print colored(line,'green')
 
+def create_table():
+	db = MySQLdb.connect("localhost","root","gt5er57","penetration" )
+	cursor = db.cursor()
+	cursor.execute("DROP TABLE IF EXISTS OPENPORTS")
 
+	sql = """CREATE TABLE OPENPORTS (
+		 PORTNUMBER  INT NOT NULL,
+		 PROTOCOL  CHAR(3),
+		 PORTSERVICE  CHAR(45),
+		 SERVICEVERSION CHAR(100))"""
+	cursor.execute(sql)
+	# disconnect from server
+	db.close()
+
+def insert_record(portnum,protocol,service,version):
+	db = MySQLdb.connect("localhost","root","gt5er57","penetration" )
+	cursor = db.cursor()
+	sql = "INSERT INTO OPENPORTS(PORTNUMBER,PROTOCOL,PORTSERVICE,SERVICEVERSION) VALUES ('"+str(portnum)+"','"+protocol+"','"+service+"','"+version+"')"
+	cursor.execute(sql)
+	db.commit()
+	db.close()
+
+def compose_and_insert(f):
+	pnum = f[0].split('/')[0]
+	prot = f[0].split('/')[1]
+	serv = f[2]
+	vers = ""
+	for n in range(0,len(f)):
+		if n > 2:
+			vers = vers+f[n]
+	insert_record(pnum,prot,serv,vers)
+
+
+create_table()
 read_file()
 host_file.close()
 test_hosts()

@@ -5,7 +5,7 @@ import os
 import subprocess
 
 alive_hosts = []
-host_file = open("alive_hosts.txt","w")
+host_file = open("../generated/alive_hosts.txt","w")
 
 
 def fping():

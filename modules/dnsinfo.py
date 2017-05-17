@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# Filename: dnsinfo.py
+
 import sys
 from termcolor import colored
 from subprocess import call
@@ -25,6 +28,6 @@ def dns_info(host):
 	for line in outt:
 		print line
 
-mx_info(sys.argv[1])
-ns_info(sys.argv[1])
-dns_info(sys.argv[1])
+version = '0.1'
+
+# End of mymodule.py

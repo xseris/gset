@@ -19,5 +19,6 @@ def get_mails(domain):
 	print mails
 
 version = '0.1'
+description = 'Gather all mails of the specified domain (@domain)'
 
 # End of mymodule.py

@@ -16,8 +16,8 @@ def get_files(domain,typ):
 		print(url.split('/')[-1])
 		p = subprocess.Popen(["curl",url],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		out, err = p.communicate()
-		out_file = open(url.split('/')[-1],"w")
-		out_file.write(out)
+		out_file = open(url.split('/')[-1],"wb")
+		out_file.write(str(out))
 		out_file.close()
 
 def get_subdomains(domain):

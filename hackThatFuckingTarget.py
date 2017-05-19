@@ -20,8 +20,33 @@ import openports
 tocompile = set()
 compiled = set()
 torun = set()
-domain = ""
-filetype = ""
+global domain
+global filetype
+d = Dialog(dialog='dialog',autowidgetsize=True)
+
+
+def collect():
+	for i in range(0,len(tocompile)):
+		a = tocompile.pop()
+		b = compiled.pop()
+		if 'domain' in a:
+			global domain
+			domain = b
+		if 'filetype' in a:
+			global filetype
+			filetype = b	
+
+def midrun():
+	for run in torun:
+		print(run)
+		if 'mail' in run:
+			print(mails.get_mails(domain))
+		if 'files' in run:
+			print(googlehack.get_files(domain,filetype))
+		if 'subdomain' in run:
+			print(googlehack.get_subdomains(domain))
+
+
 
 parser = argparse.ArgumentParser(description='A better description is required...')
 
@@ -124,7 +149,6 @@ if 'none' not in args.domain:
 else:
 	if args.guided:
 		locale.setlocale(locale.LC_ALL, '')
-		d = Dialog(dialog='dialog',autowidgetsize=True)
 		if d.yesno("This is a stupid question, but, do you want to continue?") == d.DIALOG_OK:    		
 			code, tags = d.checklist("Select all the phases you want to pass through:",
 				choices=[("(0.0) Information Gathering", "", 0)],
@@ -156,15 +180,10 @@ else:
 								if code == d.DIALOG_OK:	
 									compiled.add(string)
 							collect()
+							print(domain)
+							print(filetype)
 							midrun()
 		else:
 			code, tag = d.menu("OK, then you have two options:",
 			choices=[("(1)", "Leave this fascinating example"),
 			("(2)", "Leave this fascinating example")])
-
-def collect():
-	for param in tocompile:
-		if 'domain' in param:
-			domain = ""
-
-def midrun():

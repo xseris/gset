@@ -16,7 +16,7 @@ def get_mails(domain):
 	for line in outt:
 		if '@' in line:
 			mails.append(line)
-	print mails
+	print(mails)
 
 version = '0.1'
 description = 'Gather all mails of the specified domain (@domain)'

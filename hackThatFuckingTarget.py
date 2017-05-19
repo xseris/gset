@@ -5,18 +5,23 @@ from subprocess import call
 import subprocess
 import argparse
 import locale
-from dialog import Dialog
 
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'modules'))
 if not path in sys.path:
     sys.path.insert(1, path)
 del path
 
+from dialogpy import Dialog
 import mails
 import dnsinfo
 import googlehack
 import openports
 
+tocompile = set()
+compiled = set()
+torun = set()
+domain = ""
+filetype = ""
 
 parser = argparse.ArgumentParser(description='A better description is required...')
 
@@ -85,58 +90,81 @@ args = parser.parse_args()
 	
 if 'none' not in args.domain:
 	if args.getmails:
-		print mails.get_mails(args.domain)
+		print(mails.get_mails(args.domain))
 	if 'none' not in args.dnsinfo:
 		if 'MX' in args.dnsinfo or 'mx' in args.dnsinfo:
-			print dnsinfo.mx_info(args.domain)
+			print(dnsinfo.mx_info(args.domain))
 		if 'DNS' in args.dnsinfo or 'dns' in args.dnsinfo:
-			print dnsinfo.dns_info(args.domain)
+			print(dnsinfo.dns_info(args.domain))
 		if 'NS' in args.dnsinfo or 'ns' in args.dnsinfo:
-			print dnsinfo.ns_info(args.domain)
+			print(dnsinfo.ns_info(args.domain))
 		else:
-			print "Unknown record format. Please consider MX, NS or DNS."
+			print("Unknown record format. Please consider MX, NS or DNS.")
 	if 'none' not in args.filetype:
-		print googlehack.get_files(args.domain,args.filetype)
+		print(googlehack.get_files(args.domain,args.filetype))
 	if args.subdomain:
-		print googlehack.get_subdomains(args.domain)
+		print(googlehack.get_subdomains(args.domain))
 	if args.scanport:
 		if args.scansyn:
-			print openports.test_tcp_syn(args.domain)
+			print(openports.test_tcp_syn(args.domain))
 		if args.scantcp:
-			print openports.test_tcp_connect(args.domain)
+			print(openports.test_tcp_connect(args.domain))
 		if args.scannull:
-			print openports.test_null(args.domain)
+			print(openports.test_null(args.domain))
 		if args.scanfin:
-			print openports.test_fin(args.domain)
+			print(openports.test_fin(args.domain))
 		if args.scanxmas:
-			print openports.test_xmas(args.domain)
+			print(openports.test_xmas(args.domain))
 		if args.scanudp:
-			print openports.test_udp(args.domain)
+			print(openports.test_udp(args.domain))
 		if args.scanos:
-			print openports.test_os(args.domain)
+			print(openports.test_os(args.domain))
 		if args.scanfull:
-			print openports.test_full(args.domain)
+			print(openports.test_full(args.domain))
 else:
 	if args.guided:
 		locale.setlocale(locale.LC_ALL, '')
-		d = Dialog(dialog='dialog')
+		d = Dialog(dialog='dialog',autowidgetsize=True)
 		if d.yesno("This is a stupid question, but, do you want to continue?") == d.DIALOG_OK:    		
 			code, tags = d.checklist("Select all the phases you want to pass through:",
-				choices=[("(0.0) Information Gathering", "", 0),
-					("(1.0) Scan", "", 0)],
+				choices=[("(0.0) Information Gathering", "", 0)],
 				title="Check Penetration Testing",
 				backtitle="A place to start ...")
 			if code == d.DIALOG_OK:
 				for tag in tags:
 					if "0.0" in tag:
-						code, tags = d.radiolist("Select all modules to import:",
-							choices=[("(0.0.1) Mail", mails.version, 0),
-								("(0.0.2) Scan", "", 0)],
+						code, tags = d.checklist("Select all modules to import:",
+							choices=[("(0.0.1) Mail Crawler", "version: "+mails.version+" -> "+mails.description , 0),
+								("(0.0.2) File Crawler", "version: "+googlehack.version+" -> "+googlehack.descriptionfiles , 0),
+								("(0.0.3) Subdomain Crawler", "version: "+googlehack.version+" -> "+googlehack.descriptionsubdomains , 0)],
 							title="Module Selection",
-							backtitle="Keep configuring ...")			
+							backtitle="Keep configuring ...")
+						if code == d.DIALOG_OK:
+							for tag in tags:
+								if '0.0.1' in tag:
+									tocompile.add("domain")
+									torun.add("mail")
+								if '0.0.2' in tag:
+									tocompile.add("filetype")
+									tocompile.add("domain")
+									torun.add("files")
+								if '0.0.3' in tag:
+									tocompile.add("domain")
+									torun.add("subdomain")
+							for param in tocompile:
+								code, string = d.inputbox("Almost done, just some few details: "+param,init="")
+								if code == d.DIALOG_OK:	
+									compiled.add(string)
+							collect()
+							midrun()
 		else:
 			code, tag = d.menu("OK, then you have two options:",
 			choices=[("(1)", "Leave this fascinating example"),
 			("(2)", "Leave this fascinating example")])
-			if code == d.DIALOG_OK:
-				print tag
+
+def collect():
+	for param in tocompile:
+		if 'domain' in param:
+			domain = ""
+
+def midrun():

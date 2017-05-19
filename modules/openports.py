@@ -3,7 +3,7 @@ from termcolor import colored
 from subprocess import call
 import os
 import subprocess
-import MySQLdb
+#import MySQLdb
 
 global alive_hosts
 global open_ports
@@ -19,24 +19,24 @@ def read_file():
 def test_hosts():
 	for host in alive_hosts:
 		if host != "":
-			print "++++++++++ Testing :",host,"++++++++++"
-			print colored("Testing TCP/SYN Scan:",'yellow')
+			print("++++++++++ Testing :",host,"++++++++++")
+			print(colored("Testing TCP/SYN Scan:",'yellow'))
 			test_tcp_syn(host)
-			print colored("Testing TCP Connect:",'yellow')
+			print(colored("Testing TCP Connect:",'yellow'))
 			test_tcp_connect(host)
-			print colored("Testing NULL Scan:",'yellow')
+			print(colored("Testing NULL Scan:",'yellow'))
 			test_null(host)
-			print colored("Testing FIN Scan:",'yellow')
+			print(colored("Testing FIN Scan:",'yellow'))
 			test_fin(host)
-			print colored("Testing XMAS Scan:",'yellow')
+			print(colored("Testing XMAS Scan:",'yellow'))
 			test_xmas(host)
-			print colored("Testing UDP Scan:",'yellow')
+			print(colored("Testing UDP Scan:",'yellow'))
 			test_udp(host)
-			print colored("Retrieving OS info:",'yellow')
+			print(colored("Retrieving OS info:",'yellow'))
 			test_os(host)
 
 def test_tcp_syn(host):
-	print colored("Testing TCP/SYN Scan:",'yellow')
+	print(colored("Testing TCP/SYN Scan:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sS","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -44,10 +44,10 @@ def test_tcp_syn(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_tcp_connect(host):
-	print colored("Testing TCP Connect:",'yellow')
+	print(colored("Testing TCP Connect:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sC","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -55,10 +55,10 @@ def test_tcp_connect(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_null(host):
-	print colored("Testing NULL Scan:",'yellow')
+	print(colored("Testing NULL Scan:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sN","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -66,10 +66,10 @@ def test_null(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_fin(host):
-	print colored("Testing FIN Scan:",'yellow')
+	print(colored("Testing FIN Scan:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sF","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -77,10 +77,10 @@ def test_fin(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_xmas(host):
-	print colored("Testing XMAS Scan:",'yellow')
+	print(colored("Testing XMAS Scan:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sX","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -88,10 +88,10 @@ def test_xmas(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_udp(host):
-	print colored("Testing UDP Scan:",'yellow')
+	print(colored("Testing UDP Scan:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-sU","-sV",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
@@ -99,27 +99,27 @@ def test_udp(host):
 		if 'open' in line:
 			fields = line.split()
 			compose_and_insert(fields)
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_os(host):
-	print colored("Retrieving OS info:",'yellow')
+	print(colored("Retrieving OS info:",'yellow'))
 	p = subprocess.Popen(["nmap","-n","-Pn","-O",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
 	for line in outt:	
 		if 'OS' in line:
-			print colored(line,'green')
+			print(colored(line,'green'))
 
 def test_full(host):
-	print colored("Testing Ports and Services:",'yellow')
+	print(colored("Testing Ports and Services:",'yellow'))
 	p = subprocess.Popen(["nmap","-A","-Pn",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
 	for line in outt:	
 		if 'open' in line:
-			print colored(line,'green')
+			print(colored(line,'green'))
 		else:
-			print line
+			print(line)
 
 def create_table():
 	db = MySQLdb.connect("localhost","root","gt5er57","penetration" )

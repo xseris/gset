@@ -12,21 +12,21 @@ def mx_info(host):
 	out, err = p.communicate()
 	outt = out.split("\n")
 	for line in outt:
-		print line
+		print(line)
 
 def ns_info(host):
 	p = subprocess.Popen(["nslookup","-query=ns",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
 	for line in outt:
-		print line
+		print(line)
 
 def dns_info(host):
 	p = subprocess.Popen(["nslookup","-query=dns","-debug",host],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	out, err = p.communicate()
 	outt = out.split("\n")
 	for line in outt:
-		print line
+		print(line)
 
 version = '0.1'
 

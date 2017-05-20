@@ -16,36 +16,62 @@ import mails
 import dnsinfo
 import googlehack
 import openports
+import infogathermenu
 
 tocompile = set()
 compiled = set()
 torun = set()
 global domain
 global filetype
+global mail_list
+global subdomain_list
+global file_list
+
 d = Dialog(dialog='dialog',autowidgetsize=True)
 
-
-def collect():
-	for i in range(0,len(tocompile)):
-		a = tocompile.pop()
-		b = compiled.pop()
-		if 'domain' in a:
-			global domain
-			domain = b
-		if 'filetype' in a:
-			global filetype
-			filetype = b	
-
 def midrun():
+	d.gauge_start("Please wait...",1000,1000)
+	step = (int)(100/len(torun))
+	actual=0;
+	text = ""
 	for run in torun:
-		print(run)
 		if 'mail' in run:
-			print(mails.get_mails(domain))
+			text = text+"[ Progress ]\t Checking for mails...\n"
+			d.gauge_update(actual,text,True)
+			global mail_list
+			mail_list = mails.get_mails(domain)
+			actual = actual+step
+			text = text.replace("[ Progress ]", "[ Done ]")
+			d.gauge_update(actual,text,True)
 		if 'files' in run:
-			print(googlehack.get_files(domain,filetype))
+			text = text+"[ Progress ]\t Checking for files..\n"
+			global file_list
+			d.gauge_update(actual,text,True)
+			file_list = googlehack.get_files_gui(domain,filetype)
+			actual = actual+step
+			text = text.replace("[ Progress ]", "[ Done ]")
+			d.gauge_update(actual,text,True)
 		if 'subdomain' in run:
-			print(googlehack.get_subdomains(domain))
+			text = text+"[ Progress ]\t Checking for subdomains...\n"
+			global subdomain_list
+			d.gauge_update(actual,text,True)
+			subdomain_list = googlehack.get_subdomains_gui(domain)
+			actual = actual+step
+			text = text.replace("[ Progress ]", "[ Done ]")
+			d.gauge_update(actual,text,True)
+	exit_code = d.gauge_stop()
 
+def collect_missing():
+	global domain
+	global filetype
+	for param in tocompile:
+		code, string = d.inputbox("Almost done, just some few details: "+param,init="")
+		if code == d.DIALOG_OK:	
+			if 'domain' in param:
+				domain = string
+			if 'file' in param:
+				filetype = string
+	
 
 
 parser = argparse.ArgumentParser(description='A better description is required...')
@@ -156,11 +182,9 @@ else:
 				backtitle="A place to start ...")
 			if code == d.DIALOG_OK:
 				for tag in tags:
-					if "0.0" in tag:
+					if '0.0' in tag:
 						code, tags = d.checklist("Select all modules to import:",
-							choices=[("(0.0.1) Mail Crawler", "version: "+mails.version+" -> "+mails.description , 0),
-								("(0.0.2) File Crawler", "version: "+googlehack.version+" -> "+googlehack.descriptionfiles , 0),
-								("(0.0.3) Subdomain Crawler", "version: "+googlehack.version+" -> "+googlehack.descriptionsubdomains , 0)],
+							choices = infogathermenu.get_data(),
 							title="Module Selection",
 							backtitle="Keep configuring ...")
 						if code == d.DIALOG_OK:
@@ -175,13 +199,7 @@ else:
 								if '0.0.3' in tag:
 									tocompile.add("domain")
 									torun.add("subdomain")
-							for param in tocompile:
-								code, string = d.inputbox("Almost done, just some few details: "+param,init="")
-								if code == d.DIALOG_OK:	
-									compiled.add(string)
-							collect()
-							print(domain)
-							print(filetype)
+							collect_missing()
 							midrun()
 		else:
 			code, tag = d.menu("OK, then you have two options:",
